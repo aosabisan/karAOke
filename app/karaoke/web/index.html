@@ -1,0 +1,304 @@
+<!doctype html>
+<!-- Aosabi Karaoke. Copyright (c) 2026 aosabi. All rights reserved. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aosabi Karaoke</title>
+<style>
+  :root { --bg:#14151b; --panel:#1d1f28; --line:#2c2f3c; --text:#e9e9f0; --dim:#9a9db0; --accent:#ff5fa2; --ok:#5fd38d; --warn:#ffc857; --bad:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, "Segoe UI", sans-serif; }
+  header { display:flex; align-items:center; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:18px; margin:0; } header h1 span { color:var(--accent); }
+  .chip { padding:3px 10px; border-radius:99px; font-size:12.5px; border:1px solid var(--line); color:var(--dim); }
+  .chip.ok { color:var(--ok); border-color:var(--ok); } .chip.warn { color:var(--warn); border-color:var(--warn); } .chip.bad { color:var(--bad); border-color:var(--bad); }
+  nav { margin-left:auto; display:flex; gap:6px; }
+  button { font:inherit; color:var(--text); background:#2a2d3a; border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  button:hover { border-color:var(--accent); } button.main { background:var(--accent); border-color:var(--accent); color:#1a0b12; font-weight:600; }
+  button:disabled { opacity:.45; cursor:default; } button.tab.on { border-color:var(--accent); color:var(--accent); }
+  main { max-width:980px; margin:0 auto; padding:18px 20px 60px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+  h2 { font-size:15px; margin:0 0 10px; } p { margin:6px 0; } .dim { color:var(--dim); } .small { font-size:13px; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; } .grow { flex:1; }
+  input[type=text], input[type=number], select { font:inherit; color:var(--text); background:#12131a; border:1px solid var(--line); border-radius:8px; padding:6px 9px; }
+  input[type=range] { accent-color:var(--accent); }
+  label { display:inline-flex; gap:7px; align-items:center; }
+  .song { display:flex; gap:10px; align-items:center; padding:9px 0; border-top:1px solid var(--line); } .song:first-child { border-top:0; }
+  .song.on .title { color:var(--accent); }
+  .err { color:var(--bad); white-space:pre-wrap; } .note { color:var(--warn); }
+  ol { margin:6px 0 6px 20px; padding:0; } li { margin:4px 0; } a { color:var(--accent); }
+  code { background:#12131a; padding:1px 5px; border-radius:5px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>Aosabi</span> Karaoke</h1>
+  <span id="linkChip" class="chip">VTube Pro: ...</span>
+  <span id="liveChip" class="chip warn" hidden>You look live</span>
+  <nav><button class="tab on" data-tab="sing">Sing</button><button class="tab" data-tab="setup">Setup</button></nav>
+</header>
+<main>
+<div id="sing">
+  <section id="player">
+    <h2 id="nowTitle">Pick a song below</h2>
+    <div class="row">
+      <button id="play" class="main" disabled>Play</button><button id="stop" disabled>Stop</button>
+      <input id="seek" class="grow" type="range" min="0" max="1" step="0.01" value="0" disabled><span id="time" class="dim small">0:00 / 0:00</span>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label>Vocals <select id="vocalSrc"><option value="none">No vocals (music only)</option></select></label>
+      <label><input id="lip" type="checkbox"> Mouth follows the singing</label>
+      <label><input id="dance" type="checkbox"> Dance</label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="small dim">Music <input id="musicVol" type="range" min="0" max="1" step="0.01"></label>
+      <label class="small dim">Vocals <input id="vocalVol" type="range" min="0" max="1" step="0.01"></label>
+      <label class="small dim" title="Send the mouth a little early or late until it matches the sound">Mouth timing <input id="lead" type="range" min="-150" max="300" step="10"><span id="leadVal"></span></label>
+      <label class="small dim">Mouth size <input id="strength" type="range" min="0.5" max="1.6" step="0.05"></label>
+    </div>
+    <p id="playNote" class="note small"></p>
+  </section>
+  <section>
+    <h2>Add a song</h2>
+    <p class="dim small">The file is copied into your karaoke library on this computer. Nothing is uploaded anywhere.</p>
+    <div class="row">
+      <input id="songFile" type="file" accept="audio/*,.flac,.m4a,.ogg,.opus">
+      <label>When it plays, the vocals are <select id="addVocals"><option value="none">left out</option><option value="original">the original singer</option><option value="voice">sung by a voice model</option></select></label>
+    </div>
+    <div class="row" id="voiceRow" hidden style="margin-top:8px">
+      <label>Voice model <select id="addVoice"></select></label>
+      <label title="Move the melody up or down in half steps so it suits the voice. 12 = one octave.">Pitch <input id="addPitch" type="number" min="-24" max="24" value="0" style="width:70px"> half steps</label>
+    </div>
+    <details style="margin-top:8px"><summary class="dim small">I already have the music and the vocals as two separate WAV files</summary>
+      <div class="row" style="margin-top:8px"><label>Music only (WAV) <input id="instFile" type="file" accept=".wav"></label><label>Vocals only (WAV) <input id="vocFile" type="file" accept=".wav"></label></div>
+      <p class="dim small">Choose all three files and the splitting step is skipped.</p></details>
+    <div class="row" style="margin-top:10px"><button id="add" class="main">Add song</button><span id="addMsg" class="small"></span></div>
+  </section>
+  <section><h2>Your songs</h2><div id="songs" class="dim">No songs yet.</div></section>
+  <section id="jobsBox" hidden><h2>Working on</h2><div id="jobs"></div></section>
+</div>
+
+<div id="setup" hidden>
+  <section>
+    <h2>1. Connect to VTube Pro <span id="linkChip2" class="chip"></span></h2>
+    <p id="linkDetail" class="small"></p>
+    <ol class="small">
+      <li>In VTube Pro open the <b>Track</b> tab, find <b>External tracking</b> and switch on <b>VTube Studio API (plugins)</b>.</li>
+      <li>Press <b>Connect</b> here, then press <b>Allow</b> next to "Aosabi Karaoke" in that same list. You only do this once.</li>
+      <li>In the same place, set <b>Drive the avatar from</b> to <b>VTube Studio API plugins</b>. While no song plays, your camera and microphone drive the avatar as usual.</li>
+    </ol>
+    <div class="row"><button id="connect">Connect</button>
+      <label class="small dim">Plugin port <input id="vtsPort" type="number" style="width:90px"></label>
+      <label class="small dim">VTube Pro port <input id="vtpPort" type="number" style="width:90px"></label></div>
+    <p class="dim small">While the mouth follows a song, the plugin also blinks for you, and your brows rest. Your head and body still follow your camera.</p>
+  </section>
+  <section>
+    <h2>2. The tools that do the heavy work</h2>
+    <p class="small">These are free tools made by other people. They are <b>not part of Aosabi Karaoke</b>: you install each one yourself with its button, from its official source, into its own folder. Install them when you are <b>not live</b>; each is a few gigabytes.</p>
+    <div class="row small"><label>My graphics card <select id="torch"><option value="cpu">No NVIDIA card (works, but slow)</option><option value="cu124">NVIDIA (GTX / RTX 20, 30, 40)</option><option value="cu128">NVIDIA RTX 50-series</option></select></label></div>
+    <div id="engines"></div>
+    <p class="small" style="margin-top:10px"><label>Splitting model <select id="splitModel"></select></label></p>
+    <p id="uvNote" class="note small" hidden>The installer tool "uv" was not found. Close Aosabi Karaoke and start it again with its start file, which offers to get it.</p>
+  </section>
+  <section>
+    <h2>3. Voice models</h2>
+    <p class="small">Put your voice models in this folder, then press Refresh: <code id="voicesDir"></code></p>
+    <p class="small"><label class="dim">Or use a folder you already keep them in <input id="voicesDirIn" type="text" style="width:420px" placeholder="for example C:\Users\you\Desktop\voices"></label></p>
+    <ul class="small"><li><b>RVC</b>: the <code>.pth</code> file, and its <code>.index</code> file next to it if you have one.</li>
+      <li><b>so-vits-svc</b>: a folder holding <code>G_....pth</code> and <code>config.json</code>.</li></ul>
+    <div id="voices" class="small dim"></div>
+    <div class="row" style="margin-top:8px"><button id="refresh">Refresh</button>
+      <label class="small dim">RVC models are sung by <select id="rvcEngine"><option value="rvc-python">rvc-python (install above)</option><option value="applio">my own Applio</option></select></label>
+      <label class="small dim" id="applioRow" hidden>Applio folder <input id="applioDir" type="text" style="width:260px"></label></div>
+    <details style="margin-top:8px"><summary class="dim small">Use another voice tool (any format)</summary>
+      <p class="small dim">Type the command line of your tool. These words are filled in for you: <code>{input}</code> <code>{output}</code> <code>{model}</code> <code>{index}</code> <code>{config}</code> <code>{pitch}</code>. Leave empty to use the tools above.</p>
+      <input id="customCmd" type="text" style="width:100%"></details>
+    <p class="small dim">Only use a voice you have the right to use: your own, or one you have the person's permission for.</p>
+  </section>
+  <section><h2>About</h2><p class="small dim">Aosabi Karaoke <span id="ver"></span>. Your library: <code id="dataDir"></code></p></section>
+</div>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const api = (url, opt) => fetch(url, opt).then(async (r) => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || r.statusText); return j; });
+const post = (url, body) => api(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body || {}) });
+const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+let S = null, ws = null, cur = null;          // S = the program's state, cur = the song on the player
+
+// ---------------------------------------------------------------- the player (music + optional vocals, kept exactly together)
+const P = { ctx: null, buf: {}, nodes: [], gains: {}, playing: false, offset: 0, startedAt: 0, dur: 0 };
+function audio() {
+  if (!P.ctx) {
+    P.ctx = new AudioContext();
+    for (const k of ["music", "vocal"]) { P.gains[k] = P.ctx.createGain(); P.gains[k].connect(P.ctx.destination); }
+    applyVolumes();
+  }
+  return P.ctx;
+}
+function applyVolumes() { if (P.ctx && S) { P.gains.music.gain.value = S.settings.musicVolume; P.gains.vocal.gain.value = S.settings.vocalVolume; } }
+async function loadBuffer(name) {
+  const key = cur.id + "/" + name;
+  if (!P.buf[key]) P.buf[key] = fetch(`/media/${cur.id}/${name}`).then((r) => { if (!r.ok) throw new Error("That track is missing."); return r.arrayBuffer(); }).then((b) => audio().decodeAudioData(b));
+  return P.buf[key];
+}
+function vocalFile() { const v = $("vocalSrc").value; return v === "none" ? null : v === "original" ? "vocals.wav" : `voice-${v}.wav`; }
+function position() { return P.playing ? Math.min(P.dur, P.offset + (P.ctx.currentTime - P.startedAt) - (P.ctx.outputLatency || 0)) : P.offset; }
+function halt() { for (const n of P.nodes) { n.onended = null; try { n.stop(); } catch {} } P.nodes = []; }
+async function play(from) {
+  if (!cur) return;
+  $("playNote").textContent = "";
+  try {
+    const ctx = audio(); await ctx.resume();
+    const vf = vocalFile(), [music, vocal] = await Promise.all([loadBuffer("instrumental.wav"), vf ? loadBuffer(vf) : null]);
+    halt();
+    P.dur = music.duration; P.offset = Math.max(0, Math.min(from ?? P.offset, P.dur - 0.05));
+    const when = ctx.currentTime + 0.08;
+    for (const [b, g] of [[music, "music"], [vocal, "vocal"]]) {
+      if (!b) continue;
+      const n = ctx.createBufferSource(); n.buffer = b; n.connect(P.gains[g]); n.start(when, Math.min(P.offset, b.duration)); P.nodes.push(n);
+    }
+    P.nodes[0].onended = () => { if (P.playing && position() >= P.dur - 0.2) stop(); };
+    P.startedAt = when; P.playing = true;
+  } catch (e) { $("playNote").textContent = "Could not play: " + e.message; P.playing = false; }
+  tick(true);
+}
+function pause() { if (!P.playing) return; P.offset = position(); P.playing = false; halt(); tick(true); }
+function stop() { P.playing = false; P.offset = 0; halt(); tick(true); }
+
+let lastSent = 0;
+function tick(force) {
+  const pos = position();
+  if (cur) { $("seek").max = P.dur || 1; if (!seeking) $("seek").value = pos; $("time").textContent = `${fmt(pos)} / ${fmt(P.dur || 0)}`; }
+  $("play").textContent = P.playing ? "Pause" : "Play";
+  if (ws && ws.readyState === 1 && (force || performance.now() - lastSent > 200)) {
+    lastSent = performance.now();
+    ws.send(JSON.stringify({ t: "clock", song: cur ? cur.id : "", pos, playing: P.playing }));
+  }
+}
+setInterval(tick, 100);
+
+// ---------------------------------------------------------------- drawing the page from the state
+function chip(el, link) {
+  const cls = { ready: "ok", waiting: "warn", connecting: "", denied: "bad", off: "bad" }[link.state] || "";
+  const txt = { ready: "connected", waiting: "press Allow in VTube Pro", connecting: "connecting...", denied: "not allowed", off: "not connected" }[link.state];
+  el.className = "chip " + cls; el.textContent = "VTube Pro: " + txt;
+}
+function fillSelect(sel, items, value) {
+  const html = items.map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
+  if (sel.dataset.html !== html) { sel.innerHTML = html; sel.dataset.html = html; }
+  if (value !== undefined && [...sel.options].some((o) => o.value === value)) sel.value = value;
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function render() {
+  const s = S.settings;
+  chip($("linkChip"), S.link); chip($("linkChip2"), S.link); $("linkDetail").textContent = S.link.detail;
+  $("liveChip").hidden = S.live !== true;
+  for (const [id, key] of [["lip", "lipSync"], ["dance", "dance"]]) $(id).checked = s[key];
+  for (const [id, key] of [["musicVol", "musicVolume"], ["vocalVol", "vocalVolume"], ["lead", "mouthLeadMs"], ["strength", "mouthStrength"], ["vtsPort", "vtsPort"], ["vtpPort", "vtpPort"], ["applioDir", "applioDir"], ["customCmd", "customVoiceCommand"], ["voicesDirIn", "voicesDir"]])
+    if (document.activeElement !== $(id)) $(id).value = s[key];
+  $("leadVal").textContent = ` ${s.mouthLeadMs} ms`;
+  $("torch").value = s.torch; $("rvcEngine").value = s.voiceEngine.rvc; $("applioRow").hidden = s.voiceEngine.rvc !== "applio";
+  $("playNote").textContent = $("playNote").textContent.startsWith("Could not") ? $("playNote").textContent : (S.danceNote || (s.lipSync && S.link.state !== "ready" ? "The mouth will not move until VTube Pro is connected (see Setup)." : ""));
+  applyVolumes();
+  fillSelect($("addVoice"), S.voices.map((v) => [v.id, `${esc(v.name)} (${v.kind === "rvc" ? "RVC" : "so-vits-svc"})`]));
+  fillSelect($("splitModel"), Object.entries(S.splitModels).map(([k, m]) => [k, esc(m.title)]), s.splitModel);
+  $("voiceRow").hidden = $("addVocals").value !== "voice";
+  // songs
+  $("songs").innerHTML = S.songs.length ? S.songs.map((m) => {
+    const st = m.state === "ready" && m.has.instrumental ? "" : m.state === "error" ? `<span class="err small">${esc(m.note || "Something went wrong.")}</span>` : `<span class="dim small">getting ready...</span>`;
+    const note = m.state === "ready" && m.note ? `<div class="note small">${esc(m.note)}</div>` : "";
+    return `<div class="song ${cur && cur.id === m.id ? "on" : ""}"><div class="grow"><div class="title">${esc(m.title)}</div>${note}</div>${st}
+      <button data-load="${m.id}" ${m.has.instrumental ? "" : "disabled"}>Load</button><button data-voice="${m.id}" ${m.has.vocals ? "" : "disabled"} title="Sing this song with a voice model">Add a voice</button><button data-del="${m.id}">Remove</button></div>`;
+  }).join("") : "No songs yet.";
+  if (cur) { cur = S.songs.find((m) => m.id === cur.id) || null; if (!cur) { stop(); $("nowTitle").textContent = "Pick a song below"; } else vocalOptions(); }
+  $("play").disabled = $("stop").disabled = $("seek").disabled = !cur;
+  // jobs
+  const jobs = S.jobs.filter((j) => j.state !== "done" || true).slice(-5);
+  $("jobsBox").hidden = !jobs.length;
+  $("jobs").innerHTML = jobs.map((j) => `<p><b>${esc(j.title)}</b> <span class="chip ${j.state === "done" ? "ok" : j.state === "error" ? "bad" : "warn"}">${{ waiting: "waiting", running: "working", done: "done", error: "stopped" }[j.state]}</span><br>
+    <span class="${j.state === "error" ? "err" : "dim"} small">${esc(j.state === "error" ? j.error : j.line)}</span></p>`).join("");
+  // setup
+  $("engines").innerHTML = S.engines.map((e) => `<div class="song"><div class="grow"><div>${esc(e.title)} ${e.installed ? '<span class="chip ok">installed</span>' : ""}</div>
+    <div class="dim small">${esc(e.about)} ${esc(e.size)}. <a href="${e.homepage}" target="_blank" rel="noopener">Official page</a></div><div class="dim small">${esc(e.licence)}</div></div>
+    <button data-engine="${e.id}" data-act="${e.installed ? "remove" : "install"}" ${S.uv || e.installed ? "" : "disabled"}>${e.installed ? "Remove" : "Install"}</button></div>`).join("");
+  $("uvNote").hidden = S.uv;
+  $("voices").innerHTML = S.voices.length ? S.voices.map((v) => `${esc(v.name)} <span class="chip">${v.kind === "rvc" ? "RVC" + (v.index ? " + index" : "") : "so-vits-svc"}</span>`).join(" ") : "No voice models found yet.";
+  $("voicesDir").textContent = S.voicesDir; $("dataDir").textContent = S.dataDir; $("ver").textContent = S.version;
+}
+function vocalOptions() {
+  const opts = [["none", "No vocals (music only)"]];
+  if (cur.has.vocals) opts.push(["original", "Original singer"]);
+  for (const v of cur.has.voices) { const [id, pitch] = [v.slice(0, v.lastIndexOf("_")), v.slice(v.lastIndexOf("_") + 1)]; const m = S.voices.find((x) => x.id === id); opts.push([v, `Voice model: ${esc(m ? m.name : id)}${pitch !== "+0" ? " (" + pitch + ")" : ""}`]); }
+  fillSelect($("vocalSrc"), opts);
+}
+function setting(patch) { Object.assign(S.settings, patch); post("/api/settings", patch).catch(() => {}); render(); }
+
+// ---------------------------------------------------------------- buttons
+document.querySelectorAll(".tab").forEach((b) => b.onclick = () => { document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("on", x === b)); $("sing").hidden = b.dataset.tab !== "sing"; $("setup").hidden = b.dataset.tab !== "setup"; });
+$("play").onclick = () => (P.playing ? pause() : play());
+$("stop").onclick = stop;
+let seeking = false;
+$("seek").oninput = () => { seeking = true; };
+$("seek").onchange = () => { seeking = false; const t = +$("seek").value; if (P.playing) play(t); else { P.offset = t; tick(true); } };
+$("vocalSrc").onchange = () => { if (P.playing) play(position()); };
+$("lip").onchange = () => setting({ lipSync: $("lip").checked });
+$("dance").onchange = () => setting({ dance: $("dance").checked });
+$("musicVol").oninput = () => setting({ musicVolume: +$("musicVol").value });
+$("vocalVol").oninput = () => setting({ vocalVolume: +$("vocalVol").value });
+$("lead").oninput = () => setting({ mouthLeadMs: +$("lead").value });
+$("strength").oninput = () => setting({ mouthStrength: +$("strength").value });
+$("vtsPort").onchange = () => setting({ vtsPort: +$("vtsPort").value });
+$("vtpPort").onchange = () => setting({ vtpPort: +$("vtpPort").value });
+$("torch").onchange = () => setting({ torch: $("torch").value });
+$("splitModel").onchange = () => setting({ splitModel: $("splitModel").value });
+$("rvcEngine").onchange = () => setting({ voiceEngine: { ...S.settings.voiceEngine, rvc: $("rvcEngine").value } });
+$("applioDir").onchange = () => setting({ applioDir: $("applioDir").value.trim() });
+$("voicesDirIn").onchange = () => post("/api/settings", { voicesDir: $("voicesDirIn").value.trim() }).then(() => api("/api/state")).then((st) => { S = st; render(); });
+$("customCmd").onchange = () => setting({ customVoiceCommand: $("customCmd").value.trim() });
+$("connect").onclick = () => post("/api/connect");
+$("refresh").onclick = () => api("/api/state").then((s) => { S = s; render(); });
+$("addVocals").onchange = render;
+$("add").onclick = async () => {
+  const f = $("songFile").files[0], msg = $("addMsg");
+  if (!f) { msg.textContent = "Choose a song file first."; return; }
+  if ($("addVocals").value === "voice" && !$("addVoice").value) { msg.textContent = "Put a voice model in your voices folder first (see Setup)."; return; }
+  if (S.live === true && !confirm("VTube Pro says you are live. Splitting a song uses a lot of your computer and can make the stream stutter. Start anyway?")) return;
+  const fd = new FormData();
+  fd.append("title", f.name.replace(/\.[^.]+$/, "")); fd.append("mode", $("addVocals").value); fd.append("voice", $("addVoice").value); fd.append("pitch", $("addPitch").value);
+  fd.append("song", f);
+  if ($("instFile").files[0] && $("vocFile").files[0]) { fd.append("instrumental", $("instFile").files[0]); fd.append("vocals", $("vocFile").files[0]); }
+  msg.textContent = "Copying the file into your library...";
+  try { await api("/api/songs", { method: "POST", body: fd }); msg.textContent = "Added. It appears below when it is ready."; $("songFile").value = ""; }
+  catch (e) { msg.textContent = e.message; }
+};
+document.body.addEventListener("click", (ev) => {
+  const d = ev.target.dataset || {};
+  if (d.load) { stop(); cur = S.songs.find((m) => m.id === d.load); P.dur = 0; $("nowTitle").textContent = cur.title; render(); loadBuffer("instrumental.wav").then((b) => { P.dur = b.duration; tick(true); }).catch(() => {}); }
+  if (d.del && confirm("Remove this song from your karaoke library? (Your original file is not touched.)")) fetch(`/api/songs/${d.del}`, { method: "DELETE" });
+  if (d.voice) {
+    if (!S.voices.length) { alert("Put a voice model in your voices folder first (see Setup)."); return; }
+    const pick = prompt("Which voice model? Type its number:\n" + S.voices.map((v, i) => `${i + 1}. ${v.name}`).join("\n"), "1"), v = S.voices[+pick - 1];
+    if (!v) return;
+    const pitch = prompt("Pitch in half steps (0 = as sung, 12 = one octave up, -12 = one octave down):", "0");
+    if (pitch !== null) post(`/api/songs/${d.voice}/process`, { vocals: "voice", voice: v.id, pitch: +pitch || 0 });
+  }
+  if (d.engine) {
+    if (d.act === "install" && !confirm("This downloads the tool from its official source onto this computer (a few gigabytes). Do it when you are not live. Start now?")) return;
+    if (d.act === "remove" && !confirm("Remove this tool from this computer?")) return;
+    post(`/api/engines/${d.engine}/${d.act}`);
+  }
+});
+window.addEventListener("beforeunload", () => { P.playing = false; tick(true); });
+
+function connect() {
+  ws = new WebSocket(`ws://${location.host}/ws`);
+  ws.onmessage = (ev) => { const m = JSON.parse(ev.data); if (m.t === "state") { S = m.state; render(); } };
+  ws.onclose = () => setTimeout(connect, 1500);
+}
+connect();
+</script>
+</body>
+</html>

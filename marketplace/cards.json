@@ -1,0 +1,23 @@
+{
+  "note": "Card texts for the three Marketplace listings (two rooms and one asset pack), free for now. build_packs.cmd passes exactly these to VTube Pro's own tool.",
+  "listings": [
+    {
+      "id": "karaoke_room", "kind": "room", "title": "Karaoke Room", "tagline": "A cosy karaoke lounge",
+      "description": "Step onto the little riser, face the couches and sing: a small karaoke lounge with a big screen behind you.",
+      "inside": ["Singer and duet spots on the riser", "Four couch seats for friends", "A big screen for React mode", "Three cameras, including a singer close-up"],
+      "author": "aosabi", "price": 0
+    },
+    {
+      "id": "karaoke_stage", "kind": "room", "title": "Karaoke Stage", "tagline": "A concert stage of your own",
+      "description": "A raised stage with a truss, monitors and a huge screen wall, seen from the crowd.",
+      "inside": ["Four spots on the stage", "Two spots down in the crowd", "A screen wall for React mode", "Four cameras, including a crowd view"],
+      "author": "aosabi", "price": 0
+    },
+    {
+      "id": "karaoke_props", "kind": "props", "title": "Karaoke Props", "tagline": "Furniture and stage pieces",
+      "description": "The couch, table, riser, stage pieces, truss, monitor, microphone stand and neon strip from the karaoke rooms, to place in any room.",
+      "inside": ["Couch and coffee table", "Singer riser, stage deck and steps", "Lighting truss and floor monitor", "Microphone stand", "Neon light strip"],
+      "author": "aosabi", "price": 0
+    }
+  ]
+}

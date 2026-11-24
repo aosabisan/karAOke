@@ -1,0 +1,10 @@
+Aosabi Karaoke
+Copyright (c) 2026 aosabi <aosabi@pm.me>. All rights reserved.
+
+This package contains only work made by aosabi: the karaoke program (the "app" folder), the two placeholder
+rooms, the placeholder asset pack, the file that builds them and the card texts (the "marketplace" folder).
+
+It contains no third-party software, models or music. The free tools it can work with (see THIRD_PARTY_SETUP.md)
+are downloaded by you, from their own official sources, under their own licences.
+
+No licence is granted by this file. The terms under which this package may be used are set by aosabi separately.

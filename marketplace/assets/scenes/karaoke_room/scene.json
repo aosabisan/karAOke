@@ -1,0 +1,23 @@
+{
+  "id": "karaoke_room",
+  "name": "Karaoke Room (placeholder)",
+  "model": "scene.glb",
+  "modes": [
+    "talk",
+    "react"
+  ],
+  "defaultCamera": "CAM_WIDE",
+  "ambience": {
+    "background": "#101018",
+    "fog": "#101018",
+    "fogNear": 9,
+    "fogFar": 26,
+    "exposure": 0.8
+  },
+  "avatarHeight": 1.5,
+  "lights": {
+    "programs": [
+      "steady"
+    ]
+  }
+}

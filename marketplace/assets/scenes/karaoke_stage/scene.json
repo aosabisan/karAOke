@@ -1,0 +1,23 @@
+{
+  "id": "karaoke_stage",
+  "name": "Karaoke Stage (placeholder)",
+  "model": "scene.glb",
+  "modes": [
+    "talk",
+    "react"
+  ],
+  "defaultCamera": "CAM_WIDE",
+  "ambience": {
+    "background": "#08080c",
+    "fog": "#08080c",
+    "fogNear": 14,
+    "fogFar": 46,
+    "exposure": 0.8
+  },
+  "avatarHeight": 1.5,
+  "lights": {
+    "programs": [
+      "steady"
+    ]
+  }
+}

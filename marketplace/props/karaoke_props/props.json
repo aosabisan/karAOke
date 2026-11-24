@@ -1,0 +1,156 @@
+{
+  "schema": "vtp-props/1",
+  "id": "karaoke_props",
+  "name": "Karaoke props (placeholder)",
+  "version": "2026.11.16-1",
+  "license": "own",
+  "items": [
+    {
+      "id": "couch",
+      "name": "Karaoke couch",
+      "file": "couch.glb",
+      "thumb": "thumbs/couch.png",
+      "category": "seating",
+      "place": "floor",
+      "scale": 1,
+      "tris": 24,
+      "meshes": 2,
+      "size": [
+        2.0,
+        1.2,
+        1.1
+      ]
+    },
+    {
+      "id": "coffee_table",
+      "name": "Coffee table",
+      "file": "coffee_table.glb",
+      "thumb": "thumbs/coffee_table.png",
+      "category": "furniture",
+      "place": "floor",
+      "scale": 1,
+      "tris": 24,
+      "meshes": 2,
+      "size": [
+        1.4,
+        0.4,
+        0.8
+      ]
+    },
+    {
+      "id": "singer_riser",
+      "name": "Singer riser",
+      "file": "singer_riser.glb",
+      "thumb": "thumbs/singer_riser.png",
+      "category": "stage",
+      "place": "floor",
+      "scale": 1,
+      "tris": 12,
+      "meshes": 1,
+      "size": [
+        3.0,
+        0.15,
+        1.6
+      ]
+    },
+    {
+      "id": "stage_deck",
+      "name": "Stage deck piece",
+      "file": "stage_deck.glb",
+      "thumb": "thumbs/stage_deck.png",
+      "category": "stage",
+      "place": "floor",
+      "scale": 1,
+      "tris": 12,
+      "meshes": 1,
+      "size": [
+        2.5,
+        0.8,
+        2.5
+      ]
+    },
+    {
+      "id": "stage_steps",
+      "name": "Stage steps",
+      "file": "stage_steps.glb",
+      "thumb": "thumbs/stage_steps.png",
+      "category": "stage",
+      "place": "floor",
+      "scale": 1,
+      "tris": 24,
+      "meshes": 2,
+      "size": [
+        1.2,
+        0.4,
+        2.0
+      ]
+    },
+    {
+      "id": "truss_arch",
+      "name": "Lighting truss",
+      "file": "truss_arch.glb",
+      "thumb": "thumbs/truss_arch.png",
+      "category": "stage",
+      "place": "floor",
+      "scale": 1,
+      "tris": 36,
+      "meshes": 3,
+      "size": [
+        11.1,
+        6.35,
+        0.3
+      ]
+    },
+    {
+      "id": "floor_monitor",
+      "name": "Floor monitor speaker",
+      "file": "floor_monitor.glb",
+      "thumb": "thumbs/floor_monitor.png",
+      "category": "stage",
+      "place": "floor",
+      "scale": 1,
+      "tris": 12,
+      "meshes": 1,
+      "size": [
+        0.7,
+        0.3,
+        0.5
+      ]
+    },
+    {
+      "id": "mic_stand",
+      "name": "Microphone stand",
+      "file": "mic_stand.glb",
+      "thumb": "thumbs/mic_stand.png",
+      "category": "stage",
+      "place": "floor",
+      "scale": 1,
+      "tris": 36,
+      "meshes": 3,
+      "size": [
+        0.36,
+        1.465,
+        0.36
+      ]
+    },
+    {
+      "id": "neon_strip",
+      "name": "Neon light strip",
+      "file": "neon_strip.glb",
+      "thumb": "thumbs/neon_strip.png",
+      "category": "lights",
+      "place": "wall",
+      "scale": 1,
+      "tags": [
+        "light"
+      ],
+      "tris": 24,
+      "meshes": 2,
+      "size": [
+        2.0,
+        0.08,
+        0.06
+      ]
+    }
+  ]
+}
